@@ -1,9 +1,12 @@
 import axios from "axios";
 import { store } from "../store";
 
+// Get the API base URL from environment variables
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+
 // Create an axios instance with default config
 export const api = axios.create({
-  baseURL: "http://localhost:3001", // Make sure this matches your backend URL
+  baseURL: API_BASE_URL, // Use the environment variable
   headers: {
     "Content-Type": "application/json",
   },
