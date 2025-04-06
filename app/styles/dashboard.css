@@ -1,5 +1,5 @@
 .dashboard-container {
-  height: 100%;
+  height: calc(100vh - 120px); /* Subtract header height */
   padding: 0;
   background-color: #f5f5f5; /* Light gray background */
   display: flex;
@@ -88,6 +88,9 @@
 
 /* Responsive styles for mobile */
 @media (max-width: 768px) {
+  .dashboard-container{
+    height: 100%; 
+  }
   .dashboard-header {
     padding: 15px 20px;
     position: relative;
