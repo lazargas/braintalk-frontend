@@ -301,7 +301,7 @@
   background-color: var(--card-background);
   padding: 20px;
   overflow-y: auto;
-  height: 100%;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
   border-radius: var(--section-border-radius);
@@ -577,7 +577,6 @@
   .prompt-section,
   .response-section {
     height: auto;
-    min-height: 300px;
   }
 }
 
