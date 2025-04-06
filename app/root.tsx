@@ -1,45 +1,93 @@
 import {
   Links,
+  LiveReload,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLocation,
 } from "@remix-run/react";
-import type { LinksFunction } from "@remix-run/node";
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
+import { store, persistor } from './store';
+import { AnimatePresence } from 'framer-motion';
 
-import "./tailwind.css";
+// Import CSS files as URLs, not as modules
+import globalStylesUrl from './styles/global.css?url';
+import authStylesUrl from './styles/auth.css?url';
+import dashboardStylesUrl from './styles/dashboard.css?url';
 
-export const links: LinksFunction = () => [
-  { rel: "preconnect", href: "https://fonts.googleapis.com" },
-  {
-    rel: "preconnect",
-    href: "https://fonts.gstatic.com",
-    crossOrigin: "anonymous",
-  },
-  {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
-  },
-];
+export function links() {
+  return [
+    { rel: "stylesheet", href: globalStylesUrl },
+    { rel: "stylesheet", href: authStylesUrl },
+    { rel: "stylesheet", href: dashboardStylesUrl },
+  ];
+}
 
-export function Layout({ children }: { children: React.ReactNode }) {
+// Simple loading component to show while Redux is rehydrating
+function LoadingComponent() {
   return (
-    <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <Meta />
-        <Links />
-      </head>
-      <body>
-        {children}
-        <ScrollRestoration />
-        <Scripts />
-      </body>
-    </html>
+    <div style={{ 
+      display: 'flex', 
+      flexDirection: 'column',
+      alignItems: 'center', 
+      justifyContent: 'center', 
+      height: '100vh',
+      backgroundColor: '#121212', /* Keep dark background for loading */
+      color: '#E0E0E0' /* Light text for dark background */
+    }}>
+      <div style={{
+        width: '50px',
+        height: '50px',
+        border: '5px solid #333333',
+        borderTop: '5px solid #556B2F', /* Olive color for spinner */
+        borderRadius: '50%',
+        animation: 'spin 1s linear infinite',
+        marginBottom: '20px'
+      }}></div>
+      <h2>Loading Braintalk...</h2>
+      <p>Please wait while we set things up</p>
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
+    </div>
   );
 }
 
 export default function App() {
-  return <Outlet />;
+  const location = useLocation();
+  
+  return (
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Braintalk - Grok AI with Celebrity Voice TTS</title>
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        <Provider store={store}>
+          {typeof window !== 'undefined' && persistor ? (
+            <PersistGate loading={<LoadingComponent />} persistor={persistor}>
+              <AnimatePresence mode="wait">
+                <Outlet key={location.pathname} />
+              </AnimatePresence>
+            </PersistGate>
+          ) : (
+            <AnimatePresence mode="wait">
+              <Outlet key={location.pathname} />
+            </AnimatePresence>
+          )}
+        </Provider>
+        <ScrollRestoration />
+        <Scripts />
+        <LiveReload />
+      </body>
+    </html>
+  );
 }
