@@ -5,6 +5,7 @@ import { AppDispatch, RootState } from '../store';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { setResponse } from '../store/slices/promptSlice';
+import AudioPlayer from './AudioPlayer';
 
 export default function Header() {
   const dispatch = useDispatch<AppDispatch>();
@@ -58,6 +59,12 @@ export default function Header() {
     }
   };
 
+  // Add this function to prevent click propagation
+  const handleMenuItemClick = (e: React.MouseEvent, item: any) => {
+    e.stopPropagation(); // Prevent the click from closing the menu
+    loadHistoryItem(item);
+  };
+
   return (
     <header className="dashboard-header">
       {/* Hamburger menu button - only visible on mobile */}
@@ -101,10 +108,11 @@ export default function Header() {
         {menuOpen && (
           <motion.div 
             className={`mobile-menu ${menuOpen ? 'active' : ''}`}
-            initial={{ x: "-100%" }}
+            initial={{ x: -300 }}
             animate={{ x: 0 }}
-            exit={{ x: "-100%" }}
-            transition={{ type: "tween", ease: "easeInOut", duration: 0.3 }}
+            exit={{ x: -300 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            onClick={(e) => e.stopPropagation()} // Prevent clicks inside menu from closing it
           >
             <div className="mobile-menu-header">
               <h2>Menu</h2>
@@ -116,46 +124,57 @@ export default function Header() {
                 &times;
               </button>
             </div>
-            {user && (
-              <div className="mobile-user-info">
-                <p>Signed in as:</p>
-                <p className="user-email">{user.email}</p>
-                <button 
-                  className="btn btn-logout mobile-logout" 
-                  onClick={handleLogout}
-                >
-                  Logout
-                </button>
-              </div>
-            )}
             
-            {/* Mobile History Section */}
+            <div className="mobile-user-info">
+              <p>Signed in as:</p>
+              <p className="user-email">{user?.email}</p>
+              <button 
+                className="btn btn-primary mobile-logout" 
+                onClick={handleLogout}
+              >
+                Sign Out
+              </button>
+            </div>
+            
             <div className="mobile-history-section">
               <h3>History</h3>
               {historyLoading ? (
-                <div className="loading-container">
-                  <div className="loading-spinner"></div>
-                  <p>Loading history...</p>
+                <p>Loading history...</p>
+              ) : historyItems.length === 0 ? (
+                <div className="no-history-mobile">
+                  <p>No history yet</p>
                 </div>
-              ) : historyItems && historyItems.length > 0 ? (
+              ) : (
                 <div className="mobile-history-list">
                   {historyItems.map((item) => (
-                    <div
-                      key={item.id}
+                    <div 
+                      key={item.id} 
                       className="mobile-history-item"
-                      onClick={() => loadHistoryItem(item)}
+                      onClick={(e) => handleMenuItemClick(e, item)} // Use the new handler
                     >
-                      <div className="history-text">{item.text}</div>
+                      <div className="history-text">
+                        {item.text.length > 50 
+                          ? `${item.text.substring(0, 50)}...` 
+                          : item.text}
+                      </div>
                       <div className="history-meta">
                         <span>{formatDate(item.createdAt)}</span>
                       </div>
+                      
+                      {/* Add audio player for mobile history items */}
+                      {item.audioUrl && (
+                        <div 
+                          className="mobile-history-audio"
+                          onClick={(e) => e.stopPropagation()} // Prevent audio player clicks from triggering item click
+                        >
+                          <AudioPlayer 
+                            audioUrl={item.audioUrl} 
+                            duration={item.duration || 0} 
+                          />
+                        </div>
+                      )}
                     </div>
                   ))}
-                </div>
-              ) : (
-                <div className="no-history-mobile">
-                  <p>No history yet</p>
-                  <p className="small-text">Your conversation history will appear here</p>
                 </div>
               )}
             </div>

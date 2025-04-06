@@ -682,38 +682,54 @@
 
 /* Add these styles to your dashboard.css file */
 
-/* Mobile menu history styles */
-.mobile-history-section {
-  margin-top: 20px;
-  border-top: 1px solid var(--border-color);
-  padding-top: 20px;
-  overflow-y: auto;
-  max-height: 50vh;
-}
-
-.mobile-history-section h3 {
-  color: var(--primary-color);
-  margin-bottom: 15px;
-  font-size: 1.3rem;
-}
-
-.mobile-history-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
+/* Mobile history item styling updates */
 .mobile-history-item {
   padding: 12px;
   background-color: rgba(85, 107, 47, 0.05);
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  border-left: 3px solid var(--tertiary-color);
+}
+
+.mobile-history-list{
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  flex: 1;
 }
 
 .mobile-history-item:hover {
   background-color: rgba(85, 107, 47, 0.1);
+}
+
+/* Add styles for mobile history audio player */
+.mobile-history-audio {
+  margin-top: 10px;
+  width: 100%;
+}
+
+.mobile-history-item .audio-player {
+  padding: 8px;
+  margin-top: 8px;
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  flex-wrap: wrap;
+}
+
+.mobile-history-item .btn-play {
+  width: 32px;
+  height: 32px;
+  font-size: 0.9rem;
+  min-width: 32px;
+}
+
+.mobile-history-item .audio-progress {
+  flex: 1;
+  min-width: 120px;
+}
+
+.mobile-history-item .duration {
+  font-size: 0.8rem;
 }
 
 .no-history-mobile {
@@ -766,4 +782,33 @@
   .response-section {
     grid-column: 3;
   }
+}
+
+/* Enhanced skeleton loader styles */
+.skeleton-paragraph {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 0;
+}
+
+.skeleton-line {
+  height: 16px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(85, 107, 47, 0.1) 25%, rgba(85, 107, 47, 0.2) 50%, rgba(85, 107, 47, 0.1) 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+.skeleton-line.short {
+  width: 60%;
+}
+
+.skeleton-line.medium {
+  width: 80%;
+}
+
+.skeleton-line.long {
+  width: 100%;
 }

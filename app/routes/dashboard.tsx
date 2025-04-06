@@ -10,6 +10,7 @@ import Header from "../components/Header";
 import AudioPlayer from "../components/AudioPlayer";
 import { motion } from "framer-motion";
 import { fetchHistory, addHistoryItem } from '../store/slices/historySlice';
+import ParagraphSkeleton from "../components/ParagraphSkeleton";
 
 export default function Dashboard() {
   const dispatch = useDispatch<AppDispatch>();
@@ -318,31 +319,15 @@ export default function Dashboard() {
           {/* Response Section (Right Panel) */}
           <div className="response-section">
             <div className="section-title">
-              <span className="section-icon" aria-hidden="true">
-                🔊
-              </span>
+              <span className="section-icon">💬</span>
               <h2>Response</h2>
             </div>
+            
             {promptLoading ? (
-              <div
-                className="response-loading"
-                aria-live="polite"
-                aria-busy="true"
-              >
-                <Skeleton height="100px" />
-                <Skeleton height="20px" width="80%" />
-                <Skeleton height="20px" width="60%" />
-                <p className="sr-only">Loading response...</p>
-              </div>
+            // Replace the existing skeleton with our new paragraph skeleton
+            <ParagraphSkeleton lines={8} className="response-skeleton" />
             ) : response ? (
-              <motion.div
-                className="response-card"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                tabIndex={0}
-                aria-label="AI response"
-              >
+              <div className="response-card">
                 <p>{formatResponseText(response.text)}</p>
                 
                 {/* Show More button - only appears if response is > 5 lines */}
@@ -364,7 +349,7 @@ export default function Dashboard() {
                   audioUrl={response.audioUrl}
                   duration={response.duration}
                 />
-              </motion.div>
+              </div>
             ) : (
               <div className="no-response">
                 <span aria-hidden="true" style={{ fontSize: "2rem" }}>
