@@ -182,8 +182,8 @@ export default function Dashboard() {
         <Header />
 
         <div className="dashboard-content">
-          {/* History Section (Left Panel) */}
-          <div className="history-section">
+          {/* History Section (Left Panel) - Hidden on mobile */}
+          <div className="history-section desktop-only">
             <div className="section-title">
               <span className="section-icon" aria-hidden="true">📜</span>
               <h2>History</h2>

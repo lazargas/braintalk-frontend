@@ -1,5 +1,5 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { api } from '../../utils/api';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { api } from "../../utils/api";
 
 // Define interfaces for better type safety
 interface PromptResponse {
@@ -15,10 +15,11 @@ interface PromptState {
   response: PromptResponse | null;
   isLoading: boolean;
   error: string | null;
+  history?: any;
 }
 
 const initialState: PromptState = {
-  prompt: '',
+  prompt: "",
   response: null,
   isLoading: false,
   error: null,
@@ -26,58 +27,70 @@ const initialState: PromptState = {
 
 // Update the sendPrompt thunk to properly handle the API response
 export const sendPrompt = createAsyncThunk(
-  'prompt/sendPrompt',
-  async ({ prompt, voiceId }: { prompt: string; voiceId: string }, { rejectWithValue }) => {
+  "prompt/sendPrompt",
+  async (
+    { prompt, voiceId }: { prompt: string; voiceId: string },
+    { rejectWithValue }
+  ) => {
     try {
-      console.log('Sending prompt to Krutrim API:', prompt);
-      
+      console.log("Sending prompt to Krutrim API:", prompt);
+
       // First, send the prompt to the Krutrim API
-      const krutrimResponse = await api.post('/api/krutrim/generate', { prompt });
-      
-      console.log('Krutrim API response:', krutrimResponse.data);
-      
+      const krutrimResponse = await api.post("/api/krutrim/generate", {
+        prompt,
+      });
+
+      console.log("Krutrim API response:", krutrimResponse.data);
+
       if (!krutrimResponse.data || !krutrimResponse.data.response) {
-        return rejectWithValue('Invalid response from Krutrim API');
+        return rejectWithValue("Invalid response from Krutrim API");
       }
-      
+
       // Fix: Extract the text property from the response object
-      const responseText = krutrimResponse.data.response.text || '';
-      const promptId = krutrimResponse.data.promptId;
-      
+      const responseText = krutrimResponse.data.response.text || "";
+      const promptId = krutrimResponse.data.response.promptId;
+
       // Ensure we have a valid text string before sending to TTS
-      if (!responseText || typeof responseText !== 'string') {
-        return rejectWithValue('Invalid response text from Krutrim API');
+      if (!responseText || typeof responseText !== "string") {
+        return rejectWithValue("Invalid response text from Krutrim API");
       }
-      
+
       // Then, send the text to the TTS API to generate audio
-      console.log('Sending text to TTS API:', responseText);
-      const ttsResponse = await api.post('/api/tts/generate', {
+      console.log("Sending text to TTS API:", responseText);
+      console.log("With promptId:", promptId); // Log the promptId for debugging
+
+      const ttsResponse = await api.post("/api/tts/generate", {
         text: responseText,
         voiceId,
+        promptId, // Include the promptId here
       });
-      
-      console.log('TTS API response:', ttsResponse.data);
-      
+
+      console.log("TTS API response:", ttsResponse.data);
+
       // Make sure we're using the correct property for the audio URL
-      const audioUrl = ttsResponse.data.url || ttsResponse.data.audioUrl || '';
-      
+      const audioUrl = ttsResponse.data.url || ttsResponse.data.audioUrl || "";
+      const duration = ttsResponse.data.duration || 0;
+
       // Return a combined response with all the data we need
       return {
         text: responseText,
         promptId: promptId || ttsResponse.data.promptId,
         audioUrl: audioUrl,
-        duration: ttsResponse.data.duration || 0,
+        voiceId: voiceId, // Include voiceId in the response
+        duration: duration,
         id: ttsResponse.data.id || Date.now().toString(),
       };
     } catch (error) {
-      console.error('Error in sendPrompt:', error);
-      return rejectWithValue(error.response?.data?.message || 'Failed to send prompt');
+      console.error("Error in sendPrompt:", error);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to send prompt"
+      );
     }
   }
 );
 
 const promptSlice = createSlice({
-  name: 'prompt',
+  name: "prompt",
   initialState,
   reducers: {
     setPrompt: (state, action) => {
@@ -87,7 +100,7 @@ const promptSlice = createSlice({
       state.response = action.payload;
     },
     clearPrompt: (state) => {
-      state.prompt = '';
+      state.prompt = "";
     },
   },
   extraReducers: (builder) => {

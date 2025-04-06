@@ -1,5 +1,5 @@
 .dashboard-container {
-  min-height: 100vh;
+  height: 100%;
   padding: 0;
   background-color: #f5f5f5; /* Light gray background */
   display: flex;
@@ -203,6 +203,7 @@
   .dashboard-content {
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto auto;
+    max-height: 100%;
   }
   
   .prompt-section {
@@ -221,6 +222,7 @@
     grid-template-columns: 1fr;
     padding: 15px;
     gap: 15px;
+    max-height: 100%;
   }
   
   .history-section, .prompt-section, .response-section {
@@ -280,11 +282,13 @@
   flex: 1;
   height: calc(100vh - 80px); /* Subtract header height */
   padding: 20px; /* Added padding around the content */
+  max-height: 100%;
 }
 
 @media (min-width: 992px) {
   .dashboard-content {
     grid-template-columns: 1fr 2fr 1fr;
+    max-height: 100%;
   }
 }
 
@@ -392,8 +396,9 @@
   flex-direction: column;
   gap: 15px;
   flex: 1;
-  overflow-y: auto;
+  overflow-y: scroll;
   padding-right: 10px;
+  max-height: 100%;
 }
 
 .history-list::-webkit-scrollbar {
@@ -562,7 +567,7 @@
 /* Mobile responsiveness */
 @media (max-width: 991px) {
   .dashboard-content {
-    height: auto;
+    height: 100%;
   }
 
   .history-section,
@@ -673,4 +678,92 @@
 
 .show-more-btn:hover {
   color: var(--dark-olive);
+}
+
+/* Add these styles to your dashboard.css file */
+
+/* Mobile menu history styles */
+.mobile-history-section {
+  margin-top: 20px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 20px;
+  overflow-y: auto;
+  max-height: 50vh;
+}
+
+.mobile-history-section h3 {
+  color: var(--primary-color);
+  margin-bottom: 15px;
+  font-size: 1.3rem;
+}
+
+.mobile-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mobile-history-item {
+  padding: 12px;
+  background-color: rgba(85, 107, 47, 0.05);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-left: 3px solid var(--tertiary-color);
+}
+
+.mobile-history-item:hover {
+  background-color: rgba(85, 107, 47, 0.1);
+}
+
+.no-history-mobile {
+  text-align: center;
+  padding: 15px;
+  color: var(--secondary-color);
+}
+
+/* Adjust the mobile menu width and scrolling */
+.mobile-menu {
+  width: 85%;
+  max-width: 320px;
+  overflow-y: auto;
+}
+
+/* Make sure desktop-only elements are hidden on mobile */
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
+  
+  /* Adjust grid layout for mobile */
+  .dashboard-content {
+    grid-template-columns: 1fr;
+    height: 100%;
+  }
+  
+  /* Make prompt and response sections take full width */
+  .prompt-section,
+  .response-section {
+    grid-column: 1;
+  }
+}
+
+/* Ensure desktop layout remains the same */
+@media (min-width: 769px) {
+  .dashboard-content {
+    grid-template-columns: 1fr 2fr 1fr;
+    height: 100%;
+  }
+  
+  .history-section {
+    grid-column: 1;
+  }
+  
+  .prompt-section {
+    grid-column: 2;
+  }
+  
+  .response-section {
+    grid-column: 3;
+  }
 }

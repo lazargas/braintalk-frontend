@@ -112,7 +112,15 @@ export default function AudioPlayer({ audioUrl, duration }: AudioPlayerProps) {
         onPlay={() => setIsPlaying(true)}
         preload="auto"
         crossOrigin="anonymous"
-      />
+      >
+        <track 
+          kind="captions" 
+          src="" 
+          label="English captions" 
+          srcLang="en" 
+          default 
+        />
+      </audio>
       
       <button 
         className={`btn-play ${isPlaying ? 'playing' : ''}`} 

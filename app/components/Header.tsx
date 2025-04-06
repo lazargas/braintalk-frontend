@@ -4,12 +4,15 @@ import { logout } from '../store/slices/authSlice';
 import { AppDispatch, RootState } from '../store';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
+import { setResponse } from '../store/slices/promptSlice';
 
 export default function Header() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.auth);
   const [menuOpen, setMenuOpen] = useState(false);
+  // Get history items from the store
+  const { items: historyItems, loading: historyLoading } = useSelector((state: RootState) => state.history);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -18,6 +21,41 @@ export default function Header() {
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
+  };
+
+  // Function to load a history item
+  const loadHistoryItem = (item: any) => {
+    dispatch(setResponse({
+      text: item.responseText,
+      audioUrl: item.audioUrl,
+      duration: item.duration,
+      id: item.id,
+      promptId: item.promptId,
+    }));
+    // Close the menu after selecting an item on mobile
+    setMenuOpen(false);
+  };
+
+  // Format date for history items
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        return "Invalid date";
+      }
+      
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "Unknown date";
+    }
   };
 
   return (
@@ -90,6 +128,37 @@ export default function Header() {
                 </button>
               </div>
             )}
+            
+            {/* Mobile History Section */}
+            <div className="mobile-history-section">
+              <h3>History</h3>
+              {historyLoading ? (
+                <div className="loading-container">
+                  <div className="loading-spinner"></div>
+                  <p>Loading history...</p>
+                </div>
+              ) : historyItems && historyItems.length > 0 ? (
+                <div className="mobile-history-list">
+                  {historyItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="mobile-history-item"
+                      onClick={() => loadHistoryItem(item)}
+                    >
+                      <div className="history-text">{item.text}</div>
+                      <div className="history-meta">
+                        <span>{formatDate(item.createdAt)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="no-history-mobile">
+                  <p>No history yet</p>
+                  <p className="small-text">Your conversation history will appear here</p>
+                </div>
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
